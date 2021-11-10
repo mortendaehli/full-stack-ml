@@ -17,3 +17,11 @@ Demo full stack machine learning
   - [Docker Engine Docs](https://docs.docker.com/engine/)
   - [Docker Compose Docs](https://docs.docker.com/compose/)
 - _Snyk_: [Snyk](https://snyk.io/) (Requires license)
+
+
+### "Code" of conduct
+We apply the following philosophies:
+- Pre-commit with black, flake8, isort and prettier to ensure uniform style throughout the project
+- Pre-commit with bandit to uncover security issues within the code
+- [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
+- [Semantic versioning](https://semver.org/)
