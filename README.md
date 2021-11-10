@@ -18,6 +18,10 @@ Demo full stack machine learning
   - [Docker Compose Docs](https://docs.docker.com/compose/)
 - _Snyk_: [Snyk](https://snyk.io/) (Requires license)
 
+Add libraries and projects as source root:
+- projects/backend
+- libraries/imagenet
+- etc.
 
 ### "Code" of conduct
 We apply the following philosophies:
