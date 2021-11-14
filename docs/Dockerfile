@@ -11,15 +11,15 @@ RUN apt-get update && \
 
 WORKDIR /docs
 
-COPY poetry.lock pyproject.toml ./
+COPY docs/poetry.lock docs/pyproject.toml ./
 
 RUN poetry config virtualenvs.create false && poetry install
 
-COPY docs/ ./
+COPY docs/docs ./
 
 RUN make html
 
 # Bitnami/nginx ensures that we do not run the container as root.
 FROM bitnami/nginx:1.21 as deploy
 COPY --from=build /docs/_build/html /usr/share/nginx/html
-COPY nginx.conf /opt/bitnami/nginx/conf/server_blocks/nginx.conf
+COPY docs/nginx.conf /opt/bitnami/nginx/conf/server_blocks/nginx.conf
