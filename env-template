@@ -1,0 +1,57 @@
+# Warning! These are local development variables. Do not run with this production!
+PROJECT_NAME=full-stack-ml
+
+
+# Docker images
+DOCKER_IMAGE_CELERY_WORKER=worker
+DOCKER_IMAGE_BACKEND=backend
+DOCKER_IMAGE_FRONTEND=frontend
+
+# Env
+# Environment can be development or production
+DOMAIN=localhost
+DEBUG=True
+INSTALL_DEV=true
+
+LOG_LEVEL=INFO
+ENVIRONMENT=development
+
+# Backend
+BACKEND_CORS_ORIGINS='["http://localhost","http://localhost:4200","http://localhost:3000","http://localhost:8080","http://localhost:8888","https://localhost","https://localhost:4200","https://localhost:3000","https://localhost:8080","https://localhost:8888"]'
+BACKEND_PORT=8888
+FIRST_SUPERUSER=
+FIRST_SUPERUSER_PASSWORD=
+SMTP_TLS=True
+SMTP_PORT=587
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASSWORD=
+EMAILS_FROM_EMAIL=
+
+# Frontend
+FRONTEND_PORT=3000
+
+# JWT access token
+JWT_SECRET_KEY=
+JWT_ALGORITHM=HS256
+JWT_EXPIRES=30
+
+# Flower AUTH as <usr>:<pwd>
+FLOWER_BASIC_AUTH=
+
+# Postgres
+POSTGRES_SERVER=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+POSTGRES_PORT=
+
+# PGAdmin
+PGADMIN_LISTEN_PORT=
+PGADMIN_DEFAULT_EMAIL=
+PGADMIN_DEFAULT_PASSWORD=
+
+# Traefik
+TRAEFIK_PUBLIC_NETWORK=traefik-public
+TRAEFIK_TAG=full-stack-ml.com
+TRAEFIK_PUBLIC_TAG=traefik-public

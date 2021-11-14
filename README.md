@@ -29,3 +29,10 @@ We apply the following philosophies:
 - Pre-commit with bandit to uncover security issues within the code
 - [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 - [Semantic versioning](https://semver.org/)
+
+### Todo:
+- Change to Oauth Implicit or Authorization flow depending on our needs
+- Resolve / investigate node security warnings(!)
+- Add .snyk for dependency scanning
+- Create separate network for backend -> We do not want to expose all services
+- Ensure no environmental variables are used for production. -> KeyVault
