@@ -1,0 +1,19 @@
+# listen on port 80
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+
+# Traefik dashboard over http
+[api]
+insecure = true
+dashboard = true
+
+[log]
+level = "INFO"
+
+[accessLog]
+
+# containers are not discovered automatically
+[providers]
+  [providers.docker]
+    exposedByDefault = false

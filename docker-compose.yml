@@ -2,42 +2,29 @@ version: "3.8"
 services:
 
   proxy:
-    image: traefik:v2.2
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK}
-      - default
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: "traefik:v2.5"
+    container_name: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     command:
-      - traefik
-      - --providers.docker
-      - --providers.docker.constraints=Label(`traefik.constraint-label-stack`, `${TRAEFIK_TAG}`)
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.swarmmode
-      - --accesslog
-      - --log
-      - --api
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}
-        - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG}
-        - traefik.http.middlewares.${PROJECT_NAME}-https-redirect.redirectscheme.scheme=https
-        - traefik.http.middlewares.${PROJECT_NAME}-https-redirect.redirectscheme.permanent=true
-        - traefik.http.routers.${PROJECT_NAME}-proxy-http.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)
-        - traefik.http.routers.${PROJECT_NAME}-proxy-http.entrypoints=http
-        - traefik.http.routers.${PROJECT_NAME}-proxy-https.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)
-        - traefik.http.routers.${PROJECT_NAME}-proxy-https.entrypoints=https
-        - traefik.http.routers.${PROJECT_NAME}-proxy-https.tls=true
-        - traefik.http.routers.${PROJECT_NAME}-proxy-https.tls.certresolver=le
-        - traefik.http.services.${PROJECT_NAME}-proxy.loadbalancer.server.port=80
-        - traefik.http.middlewares.${PROJECT_NAME}-www-redirect.redirectregex.regex=^https?://(www.)?(${DOMAIN})/(.*)
-        - traefik.http.middlewares.${PROJECT_NAME}-www-redirect.redirectregex.replacement=https://${DOMAIN}/$${3}
-        - traefik.http.routers.${PROJECT_NAME}-proxy-https.middlewares=${PROJECT_NAME}-www-redirect
-        - traefik.http.routers.${PROJECT_NAME}-proxy-http.middlewares=${PROJECT_NAME}-www-redirect,${PROJECT_NAME}-https-redirect
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=mortendaehli@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+
+    volumes:
+      - "./projects/traefik/letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   db:
     image: postgres:14
@@ -47,38 +34,31 @@ services:
       interval: 10s
       retries: 10
     restart: always
-    env_file:
-      - .env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_SERVER=${POSTGRES_SERVER}
     volumes:
       - app-db-data:/var/lib/postgresql/data/pgdata
-    deploy:
-      placement:
-        constraints:
-          - node.labels.${PROJECT_NAME}.app-db-data == true
 
   pgadmin:
     image: dpage/pgadmin4
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK}
-      - default
     depends_on:
       - db
-    env_file:
-      - .env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_LISTEN_PORT}
+    ports:
+      - "5050:5050"
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}
-      - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG}
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-http.rule=Host(`pgadmin.${DOMAIN}`)
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-http.entrypoints=http
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-http.middlewares=${PROJECT_NAME}-https-redirect
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-https.rule=Host(`pgadmin.${DOMAIN}`)
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-https.entrypoints=https
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-https.tls=true
-      - traefik.http.routers.${PROJECT_NAME}-pgadmin-https.tls.certresolver=le
-      - traefik.http.services.${PROJECT_NAME}-pgadmin.loadbalancer.server.port=5050
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=PathPrefix(`/pgadmin`)"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin.tls.certresolver=myresolver"
 
   queue:
     image: rabbitmq:3
@@ -90,8 +70,6 @@ services:
       dockerfile: ./projects/backend/Dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV:-false}
-    env_file:
-      - .env
     entrypoint: "./docker-entrypoint.sh"
     command: "celery"
     depends_on:
@@ -100,35 +78,26 @@ services:
 
   flower:
     image: mher/flower
-    ports:
-      - "5555:5555"
     depends_on:
       - queue
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK}
-      - default
     environment:
-        - CELERY_BROKER_URL=pyamqp://guest@queue//
-        - FLOWER_PORT=5555
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=${TRAEFIK_PUBLIC_NETWORK}
-        - traefik.constraint-label=${TRAEFIK_PUBLIC_TAG}
-        - traefik.http.routers.${PROJECT_NAME}-flower-http.rule=Host(`flower.${DOMAIN}`)
-        - traefik.http.routers.${PROJECT_NAME}-flower-http.entrypoints=http
-        - traefik.http.routers.${PROJECT_NAME}-flower-http.middlewares=${PROJECT_NAME}-https-redirect
-        - traefik.http.routers.${PROJECT_NAME}-flower-https.rule=Host(`flower.${DOMAIN}`)
-        - traefik.http.routers.${PROJECT_NAME}-flower-https.entrypoints=https
-        - traefik.http.routers.${PROJECT_NAME}-flower-https.tls=true
-        - traefik.http.routers.${PROJECT_NAME}-flower-https.tls.certresolver=le
-        - traefik.http.services.${PROJECT_NAME}-flower.loadbalancer.server.port=5555
+        - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+        - FLOWER_PORT=${FLOWER_PORT}
+        - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
+    ports:
+      - "5555:5555"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flower.rule=PathPrefix(`/flower`)"
+      - "traefik.http.routers.flower.entrypoints=websecure"
+      - "traefik.http.routers.flower.tls.certresolver=myresolver"
 
   backend:
     image: '${DOCKER_IMAGE_BACKEND}:${TAG:-latest}'
     depends_on:
       - db
       - worker
+      - proxy
     build:
       context: .
       dockerfile: ./projects/backend/Dockerfile
@@ -138,33 +107,31 @@ services:
     command: "api"
     env_file:
       - .env
-    networks:
-      - ${TRAEFIK_PUBLIC_NETWORK}
-      - default
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.constraint-label-stack=${TRAEFIK_TAG}
-        - traefik.http.routers.${PROJECT_NAME}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
-        - traefik.http.services.${PROJECT_NAME}-backend.loadbalancer.server.port=80
+    ports:
+      - "8888:8888"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
 
   frontend:
     image: '${DOCKER_IMAGE_FRONTEND}:${TAG:-latest}'
     build:
       context: .
       dockerfile: ./projects/frontend/Dockerfile
-      args:
-        NODE_ENV: ${NODE_ENV:-prod}
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.constraint-label-stack=${TRAEFIK_TAG}
-        - traefik.http.routers.${PROJECT_NAME}-frontend-http.rule=PathPrefix(`/`)
-        - traefik.http.services.${PROJECT_NAME}-frontend.loadbalancer.server.port=80
+    environment:
+      - NODE_ENV=${ENVIRONMENT}
+      - DOMAIN=${DOMAIN}
+      - API_URL="api.${DOMAIN}"
+      - APP_NAME=${PROJECT_NAME}
+    ports:
+      - "8081:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
 
 volumes:
   app-db-data:
-
-networks:
-  traefik-public:
-    external: ${TRAEFIK_PUBLIC_NETWORK_IS_EXTERNAL:-true}
