@@ -1,1 +1,2 @@
-export const BACKEND_URL: string = 'http://localhost/api/v1';
+export const BASE_URL = 'localhost';
+export const BACKEND_URL = `https://api.${BASE_URL}/api/v1`;

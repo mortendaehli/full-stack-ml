@@ -1,4 +1,5 @@
 import jwt
+from app.config import config
 from app.core import security
 from app.db import entities, schemas, session
 from app.db.crud import create_user, get_user_by_email
@@ -13,7 +14,7 @@ async def get_current_user(db=Depends(session.get_db), token: str = Depends(secu
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, security.JWT_SECRET_KEY, algorithms=[security.JWT_ALGORITHM])
+        payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.JWT_ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception

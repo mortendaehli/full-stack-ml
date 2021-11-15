@@ -35,4 +35,5 @@ We apply the following philosophies:
 - Resolve / investigate node security warnings(!)
 - Add .snyk for dependency scanning
 - Create separate network for backend -> We do not want to expose all services
+- Ensure docker containers are running as non-root(!) -> bitnami containers?
 - Ensure no environmental variables are used for production. -> KeyVault

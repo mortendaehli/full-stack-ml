@@ -17,6 +17,7 @@ services:
       dockerfile: ./projects/frontend/Dockerfile
       args:
         NODE_ENV: dev
+      target: dev
     command: "npm start"
     volumes:
       - ./projects/frontend/:/code
