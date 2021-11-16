@@ -23,6 +23,14 @@ Add libraries and projects as source root:
 - libraries/imagenet
 - etc.
 
+### Run with Docker Compose
+
+Make sure .env is populated, then run docker-compose:
+
+```bash
+docker-compose up
+```
+
 ### "Code" of conduct
 We apply the following philosophies:
 - Pre-commit with black, flake8, isort and prettier to ensure uniform style throughout the project
@@ -35,6 +43,7 @@ We apply the following philosophies:
 - Create explicitly separate network for backend network vs. Traefik
 - Ensure docker containers are running as non-root -> bitnami containers or manual handling
 - Use KeyVault or similar for secrets handling instead of environmental variables
+- Set up test db.
 
 
 ### Long term todo:
