@@ -36,7 +36,7 @@ services:
       args:
         NODE_ENV: dev
       target: dev
-    command: "npm start"
+    command: "npm run start"
     volumes:
       - ./projects/frontend/:/code
     ports:
