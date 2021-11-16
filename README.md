@@ -31,9 +31,18 @@ We apply the following philosophies:
 - [Semantic versioning](https://semver.org/)
 
 ### Todo:
-- Change to Oauth Implicit or Authorization flow depending on our needs
-- Resolve / investigate node security warnings(!)
 - Add .snyk for dependency scanning
-- Create separate network for backend -> We do not want to expose all services
-- Ensure docker containers are running as non-root(!) -> bitnami containers?
-- Ensure no environmental variables are used for production. -> KeyVault
+- Create explicitly separate network for backend network vs. Traefik
+- Ensure docker containers are running as non-root -> bitnami containers or manual handling
+- Use KeyVault or similar for secrets handling instead of environmental variables
+
+
+### Long term todo:
+- Change to Oauth (Authorization flow)[https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow] or other flow depending on needs.
+- Use Azure (AD as basis for RBAC)[https://docs.microsoft.com/en-us/azure/active-directory/develop/custom-rbac-for-developers]
+
+### Features:
+- RBAC
+- Use OpenAPI spec for frontend
+- Axio for API handling
+- Implement machine learning for logged in users
