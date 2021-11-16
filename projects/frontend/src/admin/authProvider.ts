@@ -10,7 +10,7 @@ const authProvider = {
     let formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
-    const request = new Request('/api/token', {
+    const request = new Request('/token', {
       method: 'POST',
       body: formData,
     });

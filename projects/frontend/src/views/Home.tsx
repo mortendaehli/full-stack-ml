@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { getMessage } from '../utils/api';
+import { getHealth } from '../utils/api';
 import { isAuthenticated } from '../utils/auth';
 
 const useStyles = makeStyles((theme) => ({
@@ -17,7 +17,7 @@ export const Home: FC = () => {
 
   const queryBackend = async () => {
     try {
-      const message = await getMessage();
+      const message = await getHealth();
       setMessage(message);
     } catch (err) {
       setError(String(err));

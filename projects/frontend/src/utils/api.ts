@@ -1,7 +1,7 @@
 import { BACKEND_URL } from '../config';
 
-export const getMessage = async () => {
-  const response = await fetch(BACKEND_URL);
+export const getHealth = async () => {
+  const response = await fetch(BACKEND_URL + '/health');
 
   const data = await response.json();
 

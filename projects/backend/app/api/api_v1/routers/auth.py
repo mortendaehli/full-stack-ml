@@ -7,10 +7,10 @@ from app.db.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-router = APIRouter(tags=["auth"])
+auth_router = APIRouter()
 
 
-@router.post("/token")
+@auth_router.post("/token")
 async def login(db=Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -33,7 +33,7 @@ async def login(db=Depends(get_db), form_data: OAuth2PasswordRequestForm = Depen
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/signup")
+@auth_router.post("/signup")
 async def signup(db=Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = sign_up_new_user(db, form_data.username, form_data.password)
     if not user:

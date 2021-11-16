@@ -1,6 +1,6 @@
 import os
 import secrets
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 
@@ -8,7 +8,7 @@ from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, v
 class Config(BaseSettings):
 
     PROJECT_NAME: str = os.getenv("PROJECT_NAME", "full-stack-ml")
-    SERVER_NAME: str = os.getenv("HOST")
+    SERVER_NAME: str = os.getenv("DOMAIN")
     SERVER_HOST: AnyHttpUrl = f"https://{SERVER_NAME}"
     API_V1_STR: str = "/api/v1"
 
@@ -50,7 +50,15 @@ class Config(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str = os.getenv("FIRST_SUPERUSER_PASSWORD")
     USERS_OPEN_REGISTRATION: bool = False
 
-    @validator("SENTRY_DSN", pre=True)
+    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+
+    @validator("SENTRY_DSN", pre=True, allow_reuse=True)
     def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
         if not v:
             return None

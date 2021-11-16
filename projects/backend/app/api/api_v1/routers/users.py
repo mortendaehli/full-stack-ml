@@ -6,13 +6,10 @@ from app.db.schemas import User, UserCreate, UserEdit
 from app.db.session import get_db
 from fastapi import APIRouter, Depends, Request, Response
 
-router = APIRouter(
-    tags=["users"],
-    dependencies=[Depends(get_current_active_user)],
-)
+users_router = APIRouter()
 
 
-@router.get(
+@users_router.get(
     "/users",
     response_model=t.List[User],
     response_model_exclude_none=True,
@@ -31,7 +28,7 @@ async def users_list(
     return users
 
 
-@router.get("/users/me", response_model=User, response_model_exclude_none=True)
+@users_router.get("/users/me", response_model=User, response_model_exclude_none=True)
 async def user_me(current_user=Depends(get_current_active_user)):
     """
     Get own user
@@ -39,7 +36,7 @@ async def user_me(current_user=Depends(get_current_active_user)):
     return current_user
 
 
-@router.get(
+@users_router.get(
     "/users/{user_id}",
     response_model=User,
     response_model_exclude_none=True,
@@ -60,7 +57,7 @@ async def user_details(
     # )
 
 
-@router.post("/users", response_model=User, response_model_exclude_none=True)
+@users_router.post("/users", response_model=User, response_model_exclude_none=True)
 async def user_create(
     request: Request,
     user: UserCreate,
@@ -73,7 +70,7 @@ async def user_create(
     return create_user(db, user)
 
 
-@router.put("/users/{user_id}", response_model=User, response_model_exclude_none=True)
+@users_router.put("/users/{user_id}", response_model=User, response_model_exclude_none=True)
 async def user_edit(
     request: Request,
     user_id: int,
@@ -87,7 +84,7 @@ async def user_edit(
     return edit_user(db, user_id, user)
 
 
-@router.delete("/users/{user_id}", response_model=User, response_model_exclude_none=True)
+@users_router.delete("/users/{user_id}", response_model=User, response_model_exclude_none=True)
 async def user_delete(
     request: Request,
     user_id: int,

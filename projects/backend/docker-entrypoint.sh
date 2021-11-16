@@ -36,6 +36,7 @@ if [ "$1" = 'api' ]; then
 
   if [ ENVIRONMENT != "development" ]; then
     python scripts/initial_data.py
+    python scripts/export_openapi.py
     uvicorn app.main:app --reload --host 0.0.0.0 --port ${PORT:-8888} --log-level debug
     exit $?
   fi

@@ -1,3 +1,4 @@
+import { BACKEND_URL } from '../config';
 import decodeJwt from 'jwt-decode';
 
 export const isAuthenticated = () => {
@@ -26,7 +27,7 @@ export const login = async (email: string, password: string) => {
   formData.append('username', email);
   formData.append('password', password);
 
-  const request = new Request('/api/token', {
+  const request = new Request(BACKEND_URL + '/token', {
     method: 'POST',
     body: formData,
   });
@@ -84,7 +85,7 @@ export const signUp = async (
   formData.append('username', email);
   formData.append('password', password);
 
-  const request = new Request('/api/signup', {
+  const request = new Request(BACKEND_URL + '/signup', {
     method: 'POST',
     body: formData,
   });

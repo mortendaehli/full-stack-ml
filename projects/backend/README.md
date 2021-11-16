@@ -23,3 +23,32 @@ pip install poetry
 poetry update
 exit()
 ```
+
+
+## Export OpenAPI spec. and generate API for frontend:
+This is only done when developing. Could create a shell script for this, but no need.
+
+1. Create an image for the generator
+2. 
+
+Run from project root /full-stack-ml
+```bash
+
+docker build -t openapi -f projects/backend/Dockerfile .
+
+docker run --rm  \
+  -v ${PWD}/projects/backend:/code  \
+  --user $(id -u):$(id -g)  \
+  --entrypoint /bin/bash  \
+  --env-file .env  \
+  openapi -c "python scripts/export_openapi.py"
+
+docker run --rm \
+    -v ${PWD}:/local \
+    --user $(id -u):$(id -g) \
+    openapitools/openapi-generator-cli:v5.3.0 generate \
+    -i /local/projects/backend/openapi.yaml \
+    -g typescript-axios \
+    -o /local/projects/frontend/src/api \
+    --global-property skipFormModel=false
+```
