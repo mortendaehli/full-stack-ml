@@ -35,6 +35,7 @@ if [ "$1" = 'api' ]; then
   export PYTHONPATH=$OLD_PYTHONPATH
 
   if [ ENVIRONMENT != "development" ]; then
+    python scripts/pre_start.py
     python scripts/initial_data.py
     python scripts/export_openapi.py
     uvicorn app.main:app --reload --host 0.0.0.0 --port ${PORT:-8888} --log-level debug

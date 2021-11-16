@@ -11,7 +11,7 @@ docker build -t backend -f projects/backend/Dockerfile .
 ```
 
 ## Note on slow Poetry update:
-If poetry update is too slow, try run it in Alpine linux with a volume mount.
+If poetry update is slow on MacOS. If you have the same issue then try using Alpine linux Docker with a volume mount.
 
 ```bash
 docker run -it --mount type=bind,source="$(pwd)",target=/code python:3.9 bash
@@ -28,8 +28,9 @@ exit()
 ## Export OpenAPI spec. and generate API for frontend:
 This is only done when developing. Could create a shell script for this, but no need.
 
-1. Create an image for the generator
-2. 
+1. Create an image for the generator.
+2. Export the OpenAPI yaml spec.
+3. Generate Frontend API stubs with axios and typescript.
 
 Run from project root /full-stack-ml
 ```bash

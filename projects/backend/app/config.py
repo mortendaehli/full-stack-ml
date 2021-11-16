@@ -1,3 +1,4 @@
+import json
 import os
 import secrets
 from typing import Any, Dict, List, Optional, Union
@@ -23,7 +24,7 @@ class Config(BaseSettings):
     LOG_LEVEL: str = os.environ.get("LOG_LEVEL", "INFO")
     ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "prod")
 
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = os.getenv("BACKEND_CORS_ORIGINS")
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = list(json.loads(os.getenv("BACKEND_CORS_ORIGINS")))
 
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER")
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")

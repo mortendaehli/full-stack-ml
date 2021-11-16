@@ -20,7 +20,7 @@ async def login(db=Depends(get_db), form_data: OAuth2PasswordRequestForm = Depen
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=config.JWT_EXPIRES)
     if user.is_superuser:
         permissions = "admin"
     else:
@@ -43,7 +43,7 @@ async def signup(db=Depends(get_db), form_data: OAuth2PasswordRequestForm = Depe
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=config.JWT_EXPIRES)
     if user.is_superuser:
         permissions = "admin"
     else:
