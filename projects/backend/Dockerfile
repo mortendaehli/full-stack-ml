@@ -20,7 +20,7 @@ RUN apt-get update && \
 
 RUN pip install poetry && poetry config virtualenvs.create false
 
-WORKDIR /projects/backend/
+WORKDIR /code
 
 
 COPY --chown=newuser:newuser projects/backend/pyproject.toml projects/backend/poetry.lock ./
@@ -28,12 +28,11 @@ COPY --chown=newuser:newuser projects/backend/pyproject.toml projects/backend/po
 RUN bash -c "if [ INSTALL_DEV == 'true' ] ; then poetry install --no-root ; else poetry install --no-root --no-dev ; fi"
 
 USER $USER_ID
+ENV PYTHONPATH=/code
 
 FROM dev as build
 
-ENV PYTHONPATH=/projects/backend/
-
 COPY --chown=newuser:newuser projects/backend/ ./
 
-ENTRYPOINT ["/projects/backend/docker-entrypoint.sh"]
+ENTRYPOINT ["/code/docker-entrypoint.sh"]
 CMD ["api"]
