@@ -4,7 +4,7 @@ from app.core import security
 from app.db import entities, schemas, session
 from app.db.crud import create_user, get_user_by_email
 from fastapi import Depends, HTTPException, status
-from jwt.exceptions import JWTDecodeError
+from jwt.exceptions import DecodeError
 
 
 async def get_current_user(db=Depends(session.get_db), token: str = Depends(security.oauth2_scheme)):
@@ -20,7 +20,7 @@ async def get_current_user(db=Depends(session.get_db), token: str = Depends(secu
             raise credentials_exception
         permissions: str = payload.get("permissions")
         token_data = schemas.TokenData(email=email, permissions=permissions)
-    except JWTDecodeError:
+    except DecodeError:
         raise credentials_exception
     user = get_user_by_email(db, token_data.email)
     if user is None:
