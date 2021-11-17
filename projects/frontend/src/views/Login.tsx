@@ -57,7 +57,7 @@ export const Login: FC = () => {
   };
 
   return isAuthenticated() ? (
-    <Redirect to="/" />
+    <Redirect to="/protected" />
   ) : (
     <Paper className={classes.padding}>
       <div className={classes.margin}>

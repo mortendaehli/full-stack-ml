@@ -26,21 +26,6 @@ export const Home: FC = () => {
 
   return (
     <>
-      {!message && !error && (
-        <a className={classes.link} href="/#" onClick={() => queryBackend()}>
-          Click to make request to backend
-        </a>
-      )}
-      {message && (
-        <p>
-          <code>{message}</code>
-        </p>
-      )}
-      {error && (
-        <p>
-          Error: <code>{error}</code>
-        </p>
-      )}
       <a className={classes.link} href="/admin">
         Admin Dashboard
       </a>
