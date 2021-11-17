@@ -45,10 +45,10 @@ We apply the following philosophies:
 - Use KeyVault or similar for secrets handling instead of environmental variables
 - Set up test db.
 
-
 ### Long term todo:
 - Change to Oauth (Authorization flow)[https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow] or other flow depending on needs.
-- Use Azure (AD as basis for RBAC)[https://docs.microsoft.com/en-us/azure/active-directory/develop/custom-rbac-for-developers]
+- Use OAuth2 scopes/RBAC such as (Azure AD / Identity Platform)[https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent]
+  - See (FastAPI OAuth2 scops details)[https://fastapi.tiangolo.com/advanced/security/oauth2-scopes/]
 
 ### Features:
 - RBAC
