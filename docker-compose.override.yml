@@ -28,7 +28,6 @@ services:
     volumes:
       - ./projects/backend/:/code
 
-
   frontend:
     build:
       context: .

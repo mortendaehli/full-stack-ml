@@ -50,6 +50,10 @@ if [ "$1" = 'alembic' ]; then
   export PYTHONPATH=$PYTHONPATH:/code
 fi
 
+if [ "$1" = 'poetry' ]; then
+  export PYTHONPATH=$PYTHONPATH:/code
+fi
+
 if [ "$1" = 'python' ]; then
   export PYTHONPATH=$PYTHONPATH:/code
 fi

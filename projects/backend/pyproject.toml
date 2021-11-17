@@ -5,7 +5,7 @@ description = ""
 authors = ["morten.aslesen <mortendaehli@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9,<3.10"
 fastapi = "^0.70"
 uvicorn = "^0.15"
 python-multipart = "^0.0.5"
@@ -24,6 +24,7 @@ alembic = "^1.7.3"
 python-jose = {extras = ["cryptography"], version = "^3"}
 pyjwt = "^2"
 PyYAML = "^6.0"
+"imagenet" = {path = "/libraries/imagenet/", develop=true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6"

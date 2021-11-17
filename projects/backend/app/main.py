@@ -27,13 +27,13 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/api/v1/health")
+@app.get("/api/v1/health", tags=["Generic"])
 async def health_check():
     """Check API backend health."""
     return {"message": "success"}
 
 
-@app.get("/api/v1/task")
+@app.get("/api/v1/task", tags=["Generic"])
 async def example_task():
     """Dummy task to test the Celery Queue."""
     celery_app.send_task("app.worker.test_celery", args=["Hello World"])

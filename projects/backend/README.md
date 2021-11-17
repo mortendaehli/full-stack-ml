@@ -51,15 +51,8 @@ docker run --rm \
 ```
 
 ## Note on slow Poetry update:
-If poetry update is slow on MacOS. If you have the same issue then try using Alpine linux Docker with a volume mount.
+If poetry update is slow on MacOS. Then you can run it using docker-compose:
 
 ```bash
-docker run -it --mount type=bind,source="$(pwd)",target=/code python:3.9 bash
-```
-```bash
-apt-get update
-cd code
-pip install poetry
-poetry update
-exit()
+docker-compose run backend poetry update
 ```

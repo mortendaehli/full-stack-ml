@@ -40,10 +40,13 @@ We apply the following philosophies:
 
 ### Todo:
 - Add .snyk for dependency scanning
-- Create explicitly separate network for backend network vs. Traefik
+- Add GitHub Actions pipeline for CI and later CD.
+- Create explicitly separate network for backend network vs. Traefik proxy. Ensure we get certificates.
 - Ensure docker containers are running as non-root -> bitnami containers or manual handling
 - Use KeyVault or similar for secrets handling instead of environmental variables
 - Set up test db.
+- Implement OpenAPI Generator into the CI/CD
+- Run Imagenet/Tensorflow as a separate service.
 
 ### Long term todo:
 - Change to Oauth (Authorization flow)[https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow] or other flow depending on needs.
