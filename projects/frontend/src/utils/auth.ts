@@ -27,7 +27,7 @@ export const login = async (email: string, password: string) => {
   formData.append('username', email);
   formData.append('password', password);
 
-  const request = new Request(BACKEND_URL + '/token', {
+  const request = new Request(BACKEND_URL + '/auth/token', {
     method: 'POST',
     body: formData,
   });
@@ -85,7 +85,7 @@ export const signUp = async (
   formData.append('username', email);
   formData.append('password', password);
 
-  const request = new Request(BACKEND_URL + '/signup', {
+  const request = new Request(BACKEND_URL + '/users/open', {
     method: 'POST',
     body: formData,
   });

@@ -1,10 +1,8 @@
-import json
 from functools import lru_cache
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
-import shap
 import tensorflow as tf
 import tensorflow.keras as keras
 import tensorflow.python.keras.backend as K
@@ -28,25 +26,30 @@ def load_vgg16():
 
 
 @lru_cache
-def get_shap_dataset_imagenet_50() -> Tuple[np.array, np.array]:
+def get_shap_dataset_imagenet_50() -> Tuple[np.array, np.array]:  # noqa
     """Load sample dataset from Imagenet"""
+    """
     return shap.datasets.imagenet50()
+    """
+    pass
 
 
 @lru_cache
 def get_imagenet_class_names():
     """Load the ImageNet class names"""
+    """
     url = "https://s3.amazonaws.com/deep-learning-models/image-models/imagenet_class_index.json"
     fname = shap.datasets.cache(url)
     with open(fname) as f:
         class_names = json.load(f)
     return class_names
+    """
 
 
 class ImageNet:
     def __init__(self):
         self.model: keras.Model = load_mobilenetv2()
-        self.model_explainer: Optional[shap.Explainer] = None
+        # self.model_explainer: Optional[shap.Explainer] = None
 
     @staticmethod
     def parse_image(file: File) -> Image.Image:
@@ -74,6 +77,7 @@ class ImageNet:
         :param plot: To plot Shap values or not.
         :return:
         """
+        """
         image = np.asarray(image.resize((224, 224)))[..., :3]
         image = np.expand_dims(image, 0)
         image = image / 127.5 - 1.0
@@ -96,6 +100,8 @@ class ImageNet:
             shap.image_plot(shap_values, image, index_names)
 
         return shap_values, index_names
+        """
+        pass
 
     def map2layer(self, x, layer):
         """Explain how the input to the 7th layer of the model explains the top two classes"""
