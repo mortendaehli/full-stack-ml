@@ -1,69 +1,78 @@
+import logging
+
 import jwt
+from app import entities, schemas
 from app.config import config
-from app.core import security
-from app.db import entities, schemas, session
-from app.db.crud import create_user, get_user_by_email
-from fastapi import Depends, HTTPException, status
+from app.db import crud
+from app.db.session import get_db
+from app.utils.role import Role
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jwt.exceptions import DecodeError
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+reusable_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{config.API_V1_STR}/auth/token",
+    scopes={
+        Role.USER["name"]: Role.USER["description"],
+        Role.ADMIN["name"]: Role.ADMIN["description"],
+    },
+)
 
 
-async def get_current_user(db=Depends(session.get_db), token: str = Depends(security.oauth2_scheme)):
+def get_current_user(
+    security_scopes: SecurityScopes,
+    db: Session = Depends(get_db),
+    token: str = Depends(reusable_oauth2),
+) -> entities.User:
+    if security_scopes.scopes:
+        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+    else:
+        authenticate_value = "Bearer"
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=401,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={"WWW-Authenticate": authenticate_value},
     )
     try:
         payload = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=[config.JWT_ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        if payload.get("id") is None:
             raise credentials_exception
-        permissions: str = payload.get("permissions")
-        token_data = schemas.TokenData(email=email, permissions=permissions)
-    except DecodeError:
-        raise credentials_exception
-    user = get_user_by_email(db, token_data.email)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-async def get_current_active_user(
-    current_user: entities.User = Depends(get_current_user),
-):
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
-
-async def get_current_active_superuser(
-    current_user: entities.User = Depends(get_current_user),
-) -> entities.User:
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
-    return current_user
-
-
-def authenticate_user(db, email: str, password: str):
-    user = get_user_by_email(db, email)
+        token_data = schemas.TokenData(**payload)
+    except (DecodeError, ValidationError):
+        logger.error("Error Decoding Token", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )
+    user = crud.user.get(db, id=token_data.id)
     if not user:
-        return False
-    if not security.verify_password(password, user.hashed_password):
-        return False
+        raise credentials_exception
+    if security_scopes.scopes and not token_data.role:
+        raise HTTPException(
+            status_code=401,
+            detail="Not enough permissions",
+            headers={"WWW-Authenticate": authenticate_value},
+        )
+    if security_scopes.scopes and token_data.role not in security_scopes.scopes:
+        raise HTTPException(
+            status_code=401,
+            detail="Not enough permissions",
+            headers={"WWW-Authenticate": authenticate_value},
+        )
     return user
 
 
-def sign_up_new_user(db, email: str, password: str):
-    user = get_user_by_email(db, email)
-    if user:
-        return False  # User already exists
-    new_user = create_user(
-        db,
-        schemas.UserCreate(
-            email=email,
-            password=password,
-            is_active=True,
-            is_superuser=False,
-        ),
-    )
-    return new_user
+def get_current_active_user(
+    current_user: entities.User = Security(
+        get_current_user,
+        scopes=[],
+    ),
+) -> entities.User:
+    if not crud.user.is_active(current_user):
+        raise HTTPException(status_code=400, detail="User is not active user")
+    return current_user

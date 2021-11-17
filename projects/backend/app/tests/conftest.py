@@ -1,10 +1,11 @@
 import typing as t
 
+import app.entities.user
 import pytest
 from app.config import config
 from app.core import security
-from app.db import entities
-from app.db.session import Base, get_db
+from app.db.session import get_db
+from app.entities.base import Base
 from app.main import app
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
@@ -97,12 +98,12 @@ def get_password_hash() -> str:
 
 
 @pytest.fixture
-def test_user(test_db) -> entities.User:
+def test_user(test_db) -> app.entities.user.User:
     """
     Make a test user in the database
     """
 
-    user = entities.User(
+    user = app.entities.user.User(
         email="fake@email.com",
         hashed_password=get_password_hash(),
         is_active=True,
@@ -113,12 +114,12 @@ def test_user(test_db) -> entities.User:
 
 
 @pytest.fixture
-def test_superuser(test_db) -> entities.User:
+def test_superuser(test_db) -> app.entities.user.User:
     """
     Superuser for testing
     """
 
-    user = entities.User(
+    user = app.entities.user.User(
         email="fakeadmin@email.com",
         hashed_password=get_password_hash(),
         is_superuser=True,

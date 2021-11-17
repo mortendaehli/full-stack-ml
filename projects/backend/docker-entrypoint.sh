@@ -50,6 +50,10 @@ if [ "$1" = 'alembic' ]; then
   export PYTHONPATH=$PYTHONPATH:/code
 fi
 
+if [ "$1" = 'python' ]; then
+  export PYTHONPATH=$PYTHONPATH:/code
+fi
+
 if [ "$1" = 'celery' ]; then
   export PYTHONPATH=$PYTHONPATH:/code
   celery --app=app.worker worker -l INFO -Q main-queue -c 1

@@ -1,11 +1,11 @@
-from app.api.api_v1.routers import auth, users
+from app.api.api_v1.routers import accounts, auth, roles, user_roles, users
 from app.config import config
-from app.core.auth import get_current_active_user
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-api_router_v1 = APIRouter()
+api_router = APIRouter(prefix=config.API_V1_STR)
 
-api_router_v1.include_router(auth.auth_router, prefix=config.API_V1_STR, tags=["auth"])
-api_router_v1.include_router(
-    users.users_router, prefix=config.API_V1_STR, tags=["users"], dependencies=[Depends(get_current_active_user)]
-)
+api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(roles.router, prefix="/roles", tags=["roles"])
+api_router.include_router(user_roles.router, prefix="/user-roles", tags=["user-roles"])
+api_router.include_router(accounts.router, prefix="/accounts", tags=["accounts"])

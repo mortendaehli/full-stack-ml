@@ -1,33 +1,88 @@
 components:
   schemas:
-    Body_login_api_token_post:
+    Account:
       properties:
-        client_id:
-          title: Client Id
+        created_at:
+          format: date-time
+          title: Created At
           type: string
-        client_secret:
-          title: Client Secret
+        current_subscription_ends:
+          format: date-time
+          title: Current Subscription Ends
           type: string
-        grant_type:
-          pattern: password
-          title: Grant Type
+        description:
+          title: Description
           type: string
-        password:
-          title: Password
+        id:
+          format: uuid4
+          title: Id
           type: string
-        scope:
-          default: ''
-          title: Scope
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+        name:
+          title: Name
           type: string
-        username:
-          title: Username
+        plan_id:
+          format: uuid4
+          title: Plan Id
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
           type: string
       required:
-      - username
-      - password
-      title: Body_login_api_token_post
+      - id
+      - created_at
+      - updated_at
+      title: Account
       type: object
-    Body_signup_api_signup_post:
+    AccountCreate:
+      properties:
+        current_subscription_ends:
+          format: date-time
+          title: Current Subscription Ends
+          type: string
+        description:
+          title: Description
+          type: string
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+        name:
+          title: Name
+          type: string
+        plan_id:
+          format: uuid4
+          title: Plan Id
+          type: string
+      title: AccountCreate
+      type: object
+    AccountUpdate:
+      properties:
+        current_subscription_ends:
+          format: date-time
+          title: Current Subscription Ends
+          type: string
+        description:
+          title: Description
+          type: string
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+        name:
+          title: Name
+          type: string
+        plan_id:
+          format: uuid4
+          title: Plan Id
+          type: string
+      title: AccountUpdate
+      type: object
+    Body_oauth2_password_grant_to_get_bearer_token_api_v1_auth_token_post:
       properties:
         client_id:
           title: Client Id
@@ -52,7 +107,7 @@ components:
       required:
       - username
       - password
-      title: Body_signup_api_signup_post
+      title: Body_oauth2_password_grant_to_get_bearer_token_api_v1_auth_token_post
       type: object
     HTTPValidationError:
       properties:
@@ -63,85 +118,183 @@ components:
           type: array
       title: HTTPValidationError
       type: object
-    User:
+    Role:
       properties:
-        email:
-          title: Email
-          type: string
-        first_name:
-          title: First Name
+        description:
+          title: Description
           type: string
         id:
+          format: uuid4
           title: Id
-          type: integer
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      title: Role
+      type: object
+    Token:
+      properties:
+        access_token:
+          title: Access Token
+          type: string
+        token_type:
+          title: Token Type
+          type: string
+      required:
+      - access_token
+      - token_type
+      title: Token
+      type: object
+    User:
+      properties:
+        account_id:
+          format: uuid4
+          title: Account Id
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        email:
+          format: email
+          title: Email
+          type: string
+        full_name:
+          title: Full Name
+          type: string
+        id:
+          format: uuid4
+          title: Id
+          type: string
         is_active:
           default: true
           title: Is Active
           type: boolean
-        is_superuser:
-          default: false
-          title: Is Superuser
-          type: boolean
-        last_name:
-          title: Last Name
+        phone_number:
+          title: Phone Number
           type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        user_role:
+          $ref: '#/components/schemas/UserRole'
       required:
-      - email
       - id
+      - created_at
+      - updated_at
       title: User
       type: object
     UserCreate:
       properties:
+        account_id:
+          format: uuid4
+          title: Account Id
+          type: string
         email:
+          format: email
           title: Email
           type: string
-        first_name:
-          title: First Name
+        full_name:
+          title: Full Name
           type: string
         is_active:
           default: true
           title: Is Active
           type: boolean
-        is_superuser:
-          default: false
-          title: Is Superuser
-          type: boolean
-        last_name:
-          title: Last Name
-          type: string
         password:
           title: Password
           type: string
+        phone_number:
+          title: Phone Number
+          type: string
       required:
-      - email
+      - account_id
       - password
       title: UserCreate
       type: object
-    UserEdit:
+    UserRegister:
       properties:
         email:
+          format: email
           title: Email
           type: string
-        first_name:
-          title: First Name
-          type: string
-        is_active:
-          default: true
-          title: Is Active
-          type: boolean
-        is_superuser:
-          default: false
-          title: Is Superuser
-          type: boolean
-        last_name:
-          title: Last Name
+        full_name:
+          title: Full Name
           type: string
         password:
           title: Password
           type: string
+        phone_number:
+          title: Phone Number
+          type: string
       required:
+      - password
       - email
-      title: UserEdit
+      - full_name
+      - phone_number
+      title: UserRegister
+      type: object
+    UserRole:
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        role_id:
+          format: uuid4
+          title: Role Id
+          type: string
+        user_id:
+          format: uuid4
+          title: User Id
+          type: string
+      required:
+      - role
+      title: UserRole
+      type: object
+    UserRoleCreate:
+      properties:
+        role_id:
+          format: uuid4
+          title: Role Id
+          type: string
+        user_id:
+          format: uuid4
+          title: User Id
+          type: string
+      required:
+      - user_id
+      - role_id
+      title: UserRoleCreate
+      type: object
+    UserRoleUpdate:
+      properties:
+        role_id:
+          format: uuid4
+          title: Role Id
+          type: string
+      required:
+      - role_id
+      title: UserRoleUpdate
+      type: object
+    UserUpdate:
+      properties:
+        email:
+          format: email
+          title: Email
+          type: string
+        full_name:
+          title: Full Name
+          type: string
+        phone_number:
+          title: Phone Number
+          type: string
+      required:
+      - full_name
+      - phone_number
+      - email
+      title: UserUpdate
       type: object
     ValidationError:
       properties:
@@ -166,60 +319,51 @@ components:
     OAuth2PasswordBearer:
       flows:
         password:
-          scopes: {}
-          tokenUrl: /api/token
+          scopes:
+            ADMIN: Application admin
+            USER: A normal user account
+          tokenUrl: /api/v1/auth/token
       type: oauth2
 info:
   title: full-stack-ml
   version: 0.1.0
 openapi: 3.0.2
 paths:
-  /:
+  /api/v1/accounts/:
     get:
-      description: Redirect base URL to docs.
-      operationId: docs_redirect__get
-      responses:
-        '307':
-          description: Successful Response
-      summary: Docs Redirect
-  /api/signup:
-    post:
-      operationId: signup_api_signup_post
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Body_signup_api_signup_post'
-        required: true
+      description: 'List all account if Role == Role.ADMIN '
+      operationId: get_all_accounts_api_v1_accounts__get
       responses:
         '200':
           content:
             application/json:
-              schema: {}
-          description: Successful Response
-        '422':
-          content:
-            application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-      summary: Signup
+                items:
+                  $ref: '#/components/schemas/Account'
+                title: Response Get All Accounts Api V1 Accounts  Get
+                type: array
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Get All Accounts
       tags:
-      - auth
-  /api/token:
+      - accounts
     post:
-      operationId: login_api_token_post
+      description: 'Create account for current user. '
+      operationId: create_account_for_current_user_api_v1_accounts__post
       requestBody:
         content:
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
-              $ref: '#/components/schemas/Body_login_api_token_post'
+              $ref: '#/components/schemas/AccountCreate'
         required: true
       responses:
         '200':
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/Account'
           description: Successful Response
         '422':
           content:
@@ -227,11 +371,223 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
-      summary: Login
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Account For Current User
+      tags:
+      - accounts
+  /api/v1/accounts/me:
+    get:
+      description: 'Get current active user account '
+      operationId: get_account_current_user_api_v1_accounts_me_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Account Current User
+      tags:
+      - accounts
+  /api/v1/accounts/users/me:
+    get:
+      description: Retrieve users for own account.
+      operationId: get_current_user_accounts_api_v1_accounts_users_me_get
+      parameters:
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Account'
+                title: Response Get Current User Accounts Api V1 Accounts Users Me
+                  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Get Current User Accounts
+      tags:
+      - accounts
+  /api/v1/accounts/{account_id}:
+    put:
+      description: 'Update an account. Requires admin role '
+      operationId: update_account_api_v1_accounts__account_id__put
+      parameters:
+      - in: path
+        name: account_id
+        required: true
+        schema:
+          format: uuid4
+          title: Account Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Update Account
+      tags:
+      - accounts
+  /api/v1/accounts/{account_id}/users:
+    get:
+      description: Retrieve users for an account.
+      operationId: get_users_for_account_api_v1_accounts__account_id__users_get
+      parameters:
+      - in: path
+        name: account_id
+        required: true
+        schema:
+          format: uuid4
+          title: Account Id
+          type: string
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                title: Response Get Users For Account Api V1 Accounts  Account Id  Users
+                  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Get Users For Account
+      tags:
+      - accounts
+    post:
+      description: 'Add account to user '
+      operationId: add_account_to_user_api_v1_accounts__account_id__users_post
+      parameters:
+      - in: path
+        name: account_id
+        required: true
+        schema:
+          format: uuid4
+          title: Account Id
+          type: string
+      - in: query
+        name: user_id
+        required: true
+        schema:
+          format: uuid4
+          title: User Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Add Account To User
+      tags:
+      - accounts
+  /api/v1/auth/token:
+    post:
+      description: "OAuth 2.0 Password Grant to fetch a Bearer token for the user.\n\
+        \nRequires password and username.\n\nFixme: This should not be used for any\
+        \ production system!\n    Ref: \n\n    https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow\
+        \ \n\n    https://oauth.net/2/grant-types/password/"
+      operationId: oauth2_password_grant_to_get_bearer_token_api_v1_auth_token_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_oauth2_password_grant_to_get_bearer_token_api_v1_auth_token_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Oauth2 Password Grant To Get Bearer Token
       tags:
       - auth
   /api/v1/health:
     get:
+      description: Check API backend health.
       operationId: health_check_api_v1_health_get
       responses:
         '200':
@@ -240,8 +596,47 @@ paths:
               schema: {}
           description: Successful Response
       summary: Health Check
+  /api/v1/roles/:
+    get:
+      description: 'Get all user roles '
+      operationId: get_all_user_roles_api_v1_roles__get
+      parameters:
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Role'
+                title: Response Get All User Roles Api V1 Roles  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get All User Roles
+      tags:
+      - roles
   /api/v1/task:
     get:
+      description: Dummy task to test the Celery Queue.
       operationId: example_task_api_v1_task_get
       responses:
         '200':
@@ -250,10 +645,90 @@ paths:
               schema: {}
           description: Successful Response
       summary: Example Task
-  /api/v1/users:
+  /api/v1/user-roles/:
+    post:
+      description: 'Assign a role to an existing user '
+      operationId: assign_user_role_to_existing_user_api_v1_user_roles__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRole'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Assign User Role To Existing User
+      tags:
+      - user-roles
+  /api/v1/user-roles/{user_id}:
+    put:
+      description: 'Update an existing user role. '
+      operationId: update_user_role_api_v1_user_roles__user_id__put
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          format: uuid4
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRole'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Update User Role
+      tags:
+      - user-roles
+  /api/v1/users/:
     get:
-      description: Get all users
-      operationId: users_list_api_v1_users_get
+      description: Retrieve all user. Requires admin role.
+      operationId: get_users_api_v1_users__get
+      parameters:
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          title: Limit
+          type: integer
       responses:
         '200':
           content:
@@ -261,17 +736,24 @@ paths:
               schema:
                 items:
                   $ref: '#/components/schemas/User'
-                title: Response Users List Api V1 Users Get
+                title: Response Get Users Api V1 Users  Get
                 type: array
           description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
-      - OAuth2PasswordBearer: []
-      summary: Users List
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Get Users
       tags:
       - users
     post:
-      description: Create a new user
-      operationId: user_create_api_v1_users_post
+      description: Create new user. Requires admin role.
+      operationId: create_new_user_api_v1_users__post
       requestBody:
         content:
           application/json:
@@ -292,14 +774,15 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       security:
-      - OAuth2PasswordBearer: []
-      summary: User Create
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Create New User
       tags:
       - users
   /api/v1/users/me:
     get:
-      description: Get own user
-      operationId: user_me_api_v1_users_me_get
+      description: Get current user.
+      operationId: get_current_user_api_v1_users_me_get
       responses:
         '200':
           content:
@@ -309,81 +792,17 @@ paths:
           description: Successful Response
       security:
       - OAuth2PasswordBearer: []
-      summary: User Me
-      tags:
-      - users
-  /api/v1/users/{user_id}:
-    delete:
-      description: Delete existing user
-      operationId: user_delete_api_v1_users__user_id__delete
-      parameters:
-      - in: path
-        name: user_id
-        required: true
-        schema:
-          title: User Id
-          type: integer
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: Successful Response
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-      security:
-      - OAuth2PasswordBearer: []
-      summary: User Delete
-      tags:
-      - users
-    get:
-      description: Get any user details
-      operationId: user_details_api_v1_users__user_id__get
-      parameters:
-      - in: path
-        name: user_id
-        required: true
-        schema:
-          title: User Id
-          type: integer
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: Successful Response
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-      security:
-      - OAuth2PasswordBearer: []
-      summary: User Details
+      summary: Get Current User
       tags:
       - users
     put:
-      description: Update existing user
-      operationId: user_edit_api_v1_users__user_id__put
-      parameters:
-      - in: path
-        name: user_id
-        required: true
-        schema:
-          title: User Id
-          type: integer
+      description: Update current user
+      operationId: update_current_user_api_v1_users_me_put
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserEdit'
+              $ref: '#/components/schemas/UserUpdate'
         required: true
       responses:
         '200':
@@ -400,6 +819,104 @@ paths:
           description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-      summary: User Edit
+      summary: Update Current User
       tags:
       - users
+  /api/v1/users/open:
+    post:
+      description: 'Create new user without the need to be logged in.
+
+
+        This is closed for now.'
+      operationId: register_new_user_api_v1_users_open_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Register New User
+      tags:
+      - users
+  /api/v1/users/{user_id}:
+    get:
+      description: Get a user by id if Role == Role.ADMIN
+      operationId: get_user_by_id_api_v1_users__user_id__get
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          format: uuid4
+          title: User Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Get User By Id
+      tags:
+      - users
+    put:
+      description: Update a user given Role == Role.ADMIN
+      operationId: update_user_api_v1_users__user_id__put
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          format: uuid4
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer:
+        - ADMIN
+      summary: Update User
+      tags:
+      - users
+servers:
+  - url: https://localhost/api/v1

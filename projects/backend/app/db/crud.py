@@ -1,65 +1,150 @@
-import typing as t
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
-from app.core.security import get_password_hash
-from app.db import entities, schemas
-from fastapi import HTTPException, status
+from app.core.security import get_password_hash, verify_password
+from app.entities import Account, Role, User, UserRole
+from app.entities.base import Base
+from app.schemas.account import AccountCreate, AccountUpdate
+from app.schemas.role import RoleCreate, RoleUpdate
+from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user_role import UserRoleCreate, UserRoleUpdate
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
+from pydantic.types import UUID4
 from sqlalchemy.orm import Session
 
-
-def get_user(db: Session, user_id: int):
-    user = db.query(entities.User).filter(entities.User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+# Define custom types for SQLAlchemy model, and Pydantic schemas
+ModelType = TypeVar("ModelType", bound=Base)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-def get_user_by_email(db: Session, email: str) -> schemas.UserBase:
-    return db.query(entities.User).filter(entities.User.email == email).first()
+class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+    def __init__(self, model: Type[ModelType]):
+        """
+        Basic CRUD and listing operations. To be extended for other needs below:
+
+        :param model: The SQLAlchemy model Base
+        :type model: Type[ModelType]
+        """
+        self.model = model
+
+    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[ModelType]:
+        """Read multiple records from the database for a given model/table"""
+        return db.query(self.model).offset(skip).limit(limit).all()
+
+    def get(self, db: Session, *, id: UUID4) -> Optional[ModelType]:
+        """Todo: Consider if the id name makes for a problem with the Python namespace...?"""
+        return db.query(self.model).filter(self.model.id == id).first()
+
+    def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
+        obj_in_data = jsonable_encoder(obj_in)
+        db_obj = self.model(**obj_in_data)  # type: ignore
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+    def update(self, db: Session, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+        obj_data = jsonable_encoder(db_obj)
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.dict(exclude_unset=True)
+        for field in obj_data:
+            if field in update_data:
+                setattr(db_obj, field, update_data[field])
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+    def remove(self, db: Session, *, id: UUID4) -> ModelType:
+        obj = db.query(self.model).get(id)
+        db.delete(obj)
+        db.commit()
+        return obj
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> t.List[schemas.UserOut]:
-    return db.query(entities.User).offset(skip).limit(limit).all()
+class CRUDAccount(CRUDBase[Account, AccountCreate, AccountUpdate]):
+    def get_by_name(self, db: Session, *, name: str) -> Optional[Account]:
+        return db.query(self.model).filter(Account.name == name).first()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = get_password_hash(user.password)
-    db_user = entities.User(
-        first_name=user.first_name,
-        last_name=user.last_name,
-        email=user.email,
-        is_active=user.is_active,
-        is_superuser=user.is_superuser,
-        hashed_password=hashed_password,
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+class CRUDRole(CRUDBase[Role, RoleCreate, RoleUpdate]):
+    def get_by_name(self, db: Session, *, name: str) -> Optional[Role]:
+        return db.query(self.model).filter(Role.name == name).first()
 
 
-def delete_user(db: Session, user_id: int):
-    user = get_user(db, user_id)
-    if not user:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
-    db.delete(user)
-    db.commit()
-    return user
+class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+    def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
+        return db.query(self.model).filter(User.email == email).first()
+
+    def create(self, db: Session, *, obj_in: UserCreate) -> User:
+        db_obj = User(
+            email=obj_in.email,
+            hashed_password=get_password_hash(obj_in.password),
+            full_name=obj_in.full_name,
+            account_id=obj_in.account_id,
+        )
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+    def update(
+        self,
+        db: Session,
+        *,
+        db_obj: User,
+        obj_in: Union[UserUpdate, Dict[str, Any]],
+    ) -> User:
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.dict(exclude_unset=True)
+        if "password" in update_data:
+            hashed_password = get_password_hash(update_data["password"])
+            del update_data["password"]
+            update_data["hashed_password"] = hashed_password
+        return super().update(db, db_obj=db_obj, obj_in=update_data)
+
+    def get_multi(
+        self,
+        db: Session,
+        *,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> List[User]:
+        return db.query(self.model).offset(skip).limit(limit).all()
+
+    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
+        user = self.get_by_email(db, email=email)
+        if not user:
+            return None
+        if not verify_password(password, user.hashed_password):
+            return None
+        return user
+
+    def is_active(self, user: User) -> bool:
+        return user.is_active
+
+    def get_by_account_id(
+        self,
+        db: Session,
+        *,
+        account_id: UUID4,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> List[User]:
+        return db.query(self.model).filter(User.account_id == account_id).offset(skip).limit(limit).all()
 
 
-def edit_user(db: Session, user_id: int, user: schemas.UserEdit) -> schemas.User:
-    db_user = get_user(db, user_id)
-    if not db_user:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
-    update_data = user.dict(exclude_unset=True)
+class CRUDUserRole(CRUDBase[UserRole, UserRoleCreate, UserRoleUpdate]):
+    def get_by_user_id(self, db: Session, *, user_id: UUID4) -> Optional[UserRole]:
+        return db.query(UserRole).filter(UserRole.user_id == user_id).first()
 
-    if "password" in update_data:
-        update_data["hashed_password"] = get_password_hash(user.password)
-        del update_data["password"]
 
-    for key, value in update_data.items():
-        setattr(db_user, key, value)
-
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+account = CRUDAccount(Account)
+role = CRUDRole(Role)
+user = CRUDUser(User)
+user_role = CRUDUserRole(UserRole)
