@@ -12,8 +12,7 @@ from fastapi import File
 from PIL import Image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
-# tf.compat.v1.disable_eager_execution()
-tf.compat.v1.disable_v2_behavior()
+tf.compat.v1.disable_eager_execution()
 
 
 @lru_cache
