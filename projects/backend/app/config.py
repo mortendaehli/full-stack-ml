@@ -11,8 +11,8 @@ class Config(BaseSettings):
     PROJECT_NAME: str = os.getenv("PROJECT_NAME", "full-stack-ml")
     API_V1_STR: str = "/api/v1"
 
-    SERVER_NAME: str = os.getenv("DOMAIN")
-    SERVER_HOST: AnyHttpUrl = f"https://{SERVER_NAME}"
+    DOMAIN: str = os.getenv("DOMAIN")
+    BACKEND_URL: AnyHttpUrl = f"https://api.{os.getenv('DOMAIN')}"
 
     ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "production")
     DEBUG: bool = os.getenv("DEBUG", "False").lower() in ["true", "1"]

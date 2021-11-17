@@ -2,18 +2,22 @@ from io import StringIO
 from typing import Any, Dict
 
 import yaml
+from app.config import config
 from app.main import app
 from fastapi.openapi.utils import get_openapi
 
 
 def get_open_api_json() -> Dict[str, Any]:
-    return get_openapi(
+    api_spec = get_openapi(
         title=app.title,
         version=app.version,
         openapi_version=app.openapi_version,
         description=app.description,
         routes=app.routes,
     )
+    # For some reason the get_openapi server argument does not work. This is a workaround.
+    api_spec["servers"] = [{"url": str(config.BACKEND_URL)}]
+    return api_spec
 
 
 def get_open_api_yaml() -> yaml:

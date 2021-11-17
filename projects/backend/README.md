@@ -40,8 +40,6 @@ This will generate TypeScript Axios API stubs for the frontend.
 
 ```bash
 docker-compose run backend python scripts/export_openapi.py
-echo "servers:" >> projects/backend/openapi.yaml
-echo "  - url: /api/v1" >> projects/backend/openapi.yaml
 
 docker run --rm \
     -v ${PWD}:/local \

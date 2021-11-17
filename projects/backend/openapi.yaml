@@ -331,7 +331,7 @@ openapi: 3.0.2
 paths:
   /api/v1/accounts/:
     get:
-      description: 'List all account if Role == Role.ADMIN '
+      description: List all account if Role == Role.ADMIN
       operationId: get_all_accounts_api_v1_accounts__get
       responses:
         '200':
@@ -350,7 +350,7 @@ paths:
       tags:
       - accounts
     post:
-      description: 'Create account for current user. '
+      description: Create account for current user.
       operationId: create_account_for_current_user_api_v1_accounts__post
       requestBody:
         content:
@@ -378,7 +378,7 @@ paths:
       - accounts
   /api/v1/accounts/me:
     get:
-      description: 'Get current active user account '
+      description: Get current active user account
       operationId: get_account_current_user_api_v1_accounts_me_get
       responses:
         '200':
@@ -436,7 +436,7 @@ paths:
       - accounts
   /api/v1/accounts/{account_id}:
     put:
-      description: 'Update an account. Requires admin role '
+      description: Update an account. Requires admin role
       operationId: update_account_api_v1_accounts__account_id__put
       parameters:
       - in: path
@@ -521,7 +521,7 @@ paths:
       tags:
       - accounts
     post:
-      description: 'Add account to user '
+      description: Add account to user
       operationId: add_account_to_user_api_v1_accounts__account_id__users_post
       parameters:
       - in: path
@@ -598,7 +598,7 @@ paths:
       summary: Health Check
   /api/v1/roles/:
     get:
-      description: 'Get all user roles '
+      description: Get all user roles
       operationId: get_all_user_roles_api_v1_roles__get
       parameters:
       - in: query
@@ -647,7 +647,7 @@ paths:
       summary: Example Task
   /api/v1/user-roles/:
     post:
-      description: 'Assign a role to an existing user '
+      description: Assign a role to an existing user
       operationId: assign_user_role_to_existing_user_api_v1_user_roles__post
       requestBody:
         content:
@@ -675,7 +675,7 @@ paths:
       - user-roles
   /api/v1/user-roles/{user_id}:
     put:
-      description: 'Update an existing user role. '
+      description: Update an existing user role.
       operationId: update_user_role_api_v1_user_roles__user_id__put
       parameters:
       - in: path
@@ -919,4 +919,4 @@ paths:
       tags:
       - users
 servers:
-  - url: https://localhost/api/v1
+- url: https://api.localhost
