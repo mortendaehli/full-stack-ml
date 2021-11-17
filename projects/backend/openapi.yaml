@@ -109,6 +109,16 @@ components:
       - password
       title: Body_oauth2_password_grant_to_get_bearer_token_api_v1_auth_token_post
       type: object
+    Body_predict_image_api_v1_predict_image_post:
+      properties:
+        file:
+          format: binary
+          title: File
+          type: string
+      required:
+      - file
+      title: Body_predict_image_api_v1_predict_image_post
+      type: object
     HTTPValidationError:
       properties:
         detail:
@@ -348,7 +358,7 @@ paths:
         - ADMIN
       summary: Get All Accounts
       tags:
-      - accounts
+      - Accounts
     post:
       description: Create account for current user.
       operationId: create_account_for_current_user_api_v1_accounts__post
@@ -375,7 +385,7 @@ paths:
       - OAuth2PasswordBearer: []
       summary: Create Account For Current User
       tags:
-      - accounts
+      - Accounts
   /api/v1/accounts/me:
     get:
       description: Get current active user account
@@ -391,7 +401,7 @@ paths:
       - OAuth2PasswordBearer: []
       summary: Get Account Current User
       tags:
-      - accounts
+      - Accounts
   /api/v1/accounts/users/me:
     get:
       description: Retrieve users for own account.
@@ -433,7 +443,7 @@ paths:
         - ADMIN
       summary: Get Current User Accounts
       tags:
-      - accounts
+      - Accounts
   /api/v1/accounts/{account_id}:
     put:
       description: Update an account. Requires admin role
@@ -470,7 +480,7 @@ paths:
         - ADMIN
       summary: Update Account
       tags:
-      - accounts
+      - Accounts
   /api/v1/accounts/{account_id}/users:
     get:
       description: Retrieve users for an account.
@@ -519,7 +529,7 @@ paths:
         - ADMIN
       summary: Get Users For Account
       tags:
-      - accounts
+      - Accounts
     post:
       description: Add account to user
       operationId: add_account_to_user_api_v1_accounts__account_id__users_post
@@ -555,7 +565,7 @@ paths:
       - OAuth2PasswordBearer: []
       summary: Add Account To User
       tags:
-      - accounts
+      - Accounts
   /api/v1/auth/token:
     post:
       description: "OAuth 2.0 Password Grant to fetch a Bearer token for the user.\n\
@@ -584,7 +594,7 @@ paths:
           description: Validation Error
       summary: Oauth2 Password Grant To Get Bearer Token
       tags:
-      - auth
+      - Authentication
   /api/v1/health:
     get:
       description: Check API backend health.
@@ -596,6 +606,34 @@ paths:
               schema: {}
           description: Successful Response
       summary: Health Check
+      tags:
+      - Generic
+  /api/v1/predict/image:
+    post:
+      operationId: predict_image_api_v1_predict_image_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_predict_image_api_v1_predict_image_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Predict Image
+      tags:
+      - Machine Learning
   /api/v1/roles/:
     get:
       description: Get all user roles
@@ -633,7 +671,7 @@ paths:
           description: Validation Error
       summary: Get All User Roles
       tags:
-      - roles
+      - Roles
   /api/v1/task:
     get:
       description: Dummy task to test the Celery Queue.
@@ -645,6 +683,8 @@ paths:
               schema: {}
           description: Successful Response
       summary: Example Task
+      tags:
+      - Generic
   /api/v1/user-roles/:
     post:
       description: Assign a role to an existing user
@@ -672,7 +712,7 @@ paths:
       - OAuth2PasswordBearer: []
       summary: Assign User Role To Existing User
       tags:
-      - user-roles
+      - User Roles
   /api/v1/user-roles/{user_id}:
     put:
       description: Update an existing user role.
@@ -709,7 +749,7 @@ paths:
         - ADMIN
       summary: Update User Role
       tags:
-      - user-roles
+      - User Roles
   /api/v1/users/:
     get:
       description: Retrieve all user. Requires admin role.
@@ -750,7 +790,7 @@ paths:
         - ADMIN
       summary: Get Users
       tags:
-      - users
+      - Users
     post:
       description: Create new user. Requires admin role.
       operationId: create_new_user_api_v1_users__post
@@ -778,7 +818,7 @@ paths:
         - ADMIN
       summary: Create New User
       tags:
-      - users
+      - Users
   /api/v1/users/me:
     get:
       description: Get current user.
@@ -794,7 +834,7 @@ paths:
       - OAuth2PasswordBearer: []
       summary: Get Current User
       tags:
-      - users
+      - Users
     put:
       description: Update current user
       operationId: update_current_user_api_v1_users_me_put
@@ -821,7 +861,7 @@ paths:
       - OAuth2PasswordBearer: []
       summary: Update Current User
       tags:
-      - users
+      - Users
   /api/v1/users/open:
     post:
       description: 'Create new user without the need to be logged in.
@@ -850,7 +890,7 @@ paths:
           description: Validation Error
       summary: Register New User
       tags:
-      - users
+      - Users
   /api/v1/users/{user_id}:
     get:
       description: Get a user by id if Role == Role.ADMIN
@@ -881,7 +921,7 @@ paths:
         - ADMIN
       summary: Get User By Id
       tags:
-      - users
+      - Users
     put:
       description: Update a user given Role == Role.ADMIN
       operationId: update_user_api_v1_users__user_id__put
@@ -917,6 +957,6 @@ paths:
         - ADMIN
       summary: Update User
       tags:
-      - users
+      - Users
 servers:
 - url: https://api.localhost
