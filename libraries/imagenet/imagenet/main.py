@@ -62,11 +62,7 @@ class ImageNet:
         image = np.expand_dims(image, 0)
         image = image / 127.5 - 1.0
 
-        # Making prediction
-        result = keras.applications.imagenet_utils.decode_predictions(preds=self.model.predict(image), top=2)[0]
-
-        # Adding some context to the result.
-        return [{"prediction": x[1], "confidence": x[2]} for x in result]
+        return keras.applications.imagenet_utils.decode_predictions(preds=self.model.predict(image), top=2)[0]
 
     def explain(self, image: Image.Image, plot: bool = False) -> Any:
         """
